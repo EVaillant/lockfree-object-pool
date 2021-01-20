@@ -100,7 +100,7 @@ All implementation support allocation/desallocation from on or more thread. You 
 
 ### Performance
 
-Global [report](./benches/report/index.html).
+Global [report](https://evaillant.github.io/lockfree-object-pool/benches/criterion/report/index.html).
 
 #### Allocation
 
@@ -111,7 +111,7 @@ MutexObjectPool|1.3143|1.3210
 SpinLockObjectPool|1.3170|1.2555
 LinearObjectPool|0.29399|0.19894
 
-Report [monothreading](./benches/criterion/allocation/report/index.html) and [multithreading](./benches/criterion/multi%20thread%20allocation/report/index.html).
+Report [monothreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/allocation/report/index.html) and [multithreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/multi%20thread%20allocation/report/index.html).
 
 #### Desallocation
 
@@ -122,7 +122,7 @@ MutexObjectPool|26.173|99.511
 SpinLockObjectPool|22.490|52.378
 LinearObjectPool|9.9155|23.028
 
-Report [monothreading](./benches/criterion/free/report/index.html) and [multithreading](./benches/criterion/multi%20thread%20free/report/index.html).
+Report [monothreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/free/report/index.html) and [multithreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/multi%20thread%20free/report/index.html).
 
 
 ### Implementation detail
