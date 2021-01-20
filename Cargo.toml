@@ -1,0 +1,15 @@
+[package]
+name = "lockfree-object-pool"
+version = "0.1.0"
+authors = ["Etienne Vaillant <vaillant.etienne@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+
+[dev-dependencies]
+criterion = "0.3"
+criterion-plot = "0.4"
+
+[[bench]]
+name = "bench"
+harness = false
