@@ -1,8 +1,15 @@
 [package]
 name = "lockfree-object-pool"
+description = "A thread-safe object pool collection with automatic return and attach/detach semantics."
 version = "0.1.0"
+readme = "README.md"
 authors = ["Etienne Vaillant <vaillant.etienne@gmail.com>"]
 edition = "2018"
+license = "Boost-1.0"
+homepage = "https://github.com/EVaillant/lockfree-object-pool"
+repository = "https://github.com/EVaillant/lockfree-object-pool"
+keywords = ["atomic", "object-pool", "non-blocking", "lock-free"]
+categories = ["concurrency", "memory-management", "data-structures"]
 
 [dependencies]
 
