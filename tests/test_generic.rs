@@ -18,7 +18,6 @@ macro_rules! test_generic_02 {
     ($name:ident, $expression:expr) => {
         #[test]
         fn $name() {
-            use std::mem::forget;
             let pool = $expression;
 
             let mut addrs = Vec::new();
@@ -35,7 +34,6 @@ macro_rules! test_generic_02 {
                 if !addrs.contains(&addr) {
                     addrs.push(addr);
                 }
-                forget(o);
                 assert_eq!(*v, 2);
             }
 

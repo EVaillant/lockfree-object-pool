@@ -4,12 +4,9 @@ use lockfree_object_pool::MutexObjectPool;
 mod test_generic;
 
 fn make_pool() -> MutexObjectPool<u32> {
-    MutexObjectPool::<u32>::new(
-        || Default::default(),
-        |v| {
-            *v = 0;
-        },
-    )
+    MutexObjectPool::<u32>::new(Default::default, |v| {
+        *v = 0;
+    })
 }
 
 test_generic_01!(test_mutex_01, make_pool());

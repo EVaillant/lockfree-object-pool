@@ -3,8 +3,8 @@ use std::mem::ManuallyDrop;
 use std::ops::{Deref, DerefMut};
 use std::ptr;
 
-/// Wrapper over T used by [`SpinLockObjectPool`]. 
-/// 
+/// Wrapper over T used by [`SpinLockObjectPool`].
+///
 /// Access is allowed with [`std::ops::Deref`] or [`std::ops::DerefMut`]
 /// # Example
 /// ```rust
@@ -53,9 +53,10 @@ impl<'a, T> Deref for SpinLockReusable<'a, T> {
 
 impl<'a, T> Drop for SpinLockReusable<'a, T> {
     fn drop(&mut self) {
-        unsafe {
-            self.pool
-                .attach(ManuallyDrop::into_inner(ptr::read(&self.data)));
-        }
+        let data = unsafe {
+            // SAFETY: self.data is never referenced again and it isn't dropped
+            ptr::read(&self.data)
+        };
+        self.pool.attach(ManuallyDrop::into_inner(data));
     }
 }

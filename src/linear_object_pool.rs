@@ -4,7 +4,7 @@ use crate::linear_reusable::LinearReusable;
 /// ObjectPool use a lockfree vector to secure multithread access to pull.
 ///
 /// The lockfree vector is implemented as linked list.
-/// 
+///
 /// # Example
 /// ```rust
 ///  use lockfree_object_pool::LinearObjectPool;
@@ -21,8 +21,8 @@ use crate::linear_reusable::LinearReusable;
 ///  let work = *item * 5;
 /// ```
 pub struct LinearObjectPool<T> {
-    reset: Box<dyn Fn(&mut T)>,
-    init: Box<dyn Fn() -> T>,
+    reset: Box<dyn Fn(&mut T) + Send + Sync>,
+    init: Box<dyn Fn() -> T + Send + Sync>,
     head: LinearPage<T>,
 }
 
@@ -47,8 +47,8 @@ impl<T> LinearObjectPool<T> {
     /// ```
     pub fn new<R, I>(init: I, reset: R) -> Self
     where
-        R: Fn(&mut T) + 'static,
-        I: Fn() -> T + 'static + Clone,
+        R: Fn(&mut T) + 'static + Send + Sync,
+        I: Fn() -> T + 'static + Clone + Send + Sync,
     {
         Self {
             reset: Box::new(reset),
@@ -74,14 +74,10 @@ impl<T> LinearObjectPool<T> {
     /// ```
     pub fn pull(&self) -> LinearReusable<T> {
         let (page, page_id) = self.head.alloc(&self.init);
-        LinearReusable::new(self, page_id, page)
+        unsafe { LinearReusable::new(self, page_id, page) }
     }
 
-    #[doc(hidden)]
-    pub fn get_reset_callback(&self) -> &Box<dyn Fn(&mut T)> {
+    pub(crate) fn get_reset_callback(&self) -> &dyn Fn(&mut T) {
         &self.reset
     }
 }
-
-unsafe impl<T> Send for LinearObjectPool<T> {}
-unsafe impl<T> Sync for LinearObjectPool<T> {}

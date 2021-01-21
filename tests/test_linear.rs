@@ -4,12 +4,9 @@ use lockfree_object_pool::LinearObjectPool;
 mod test_generic;
 
 fn make_pool() -> LinearObjectPool<u32> {
-    LinearObjectPool::<u32>::new(
-        || Default::default(),
-        |v| {
-            *v = 0;
-        },
-    )
+    LinearObjectPool::<u32>::new(Default::default, |v| {
+        *v = 0;
+    })
 }
 
 test_generic_01!(test_linear_01, make_pool());
