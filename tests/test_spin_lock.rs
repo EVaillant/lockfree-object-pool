@@ -4,12 +4,9 @@ use lockfree_object_pool::SpinLockObjectPool;
 mod test_generic;
 
 fn make_pool() -> SpinLockObjectPool<u32> {
-    SpinLockObjectPool::<u32>::new(
-        || Default::default(),
-        |v| {
-            *v = 0;
-        },
-    )
+    SpinLockObjectPool::<u32>::new(Default::default, |v| {
+        *v = 0;
+    })
 }
 
 test_generic_01!(test_spin_lock_01, make_pool());

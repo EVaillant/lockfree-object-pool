@@ -12,7 +12,7 @@ use crate::none_reusable::NoneReusable;
 ///  let work = *item * 5;
 /// ```
 pub struct NoneObjectPool<T> {
-    init: Box<dyn Fn() -> T>,
+    init: Box<dyn Fn() -> T + Send + Sync>,
 }
 
 impl<T> NoneObjectPool<T> {
@@ -30,7 +30,7 @@ impl<T> NoneObjectPool<T> {
     /// ```
     pub fn new<I>(init: I) -> Self
     where
-        I: Fn() -> T + 'static,
+        I: Fn() -> T + Send + Sync + 'static,
     {
         Self {
             init: Box::new(init),
@@ -51,6 +51,3 @@ impl<T> NoneObjectPool<T> {
         NoneReusable::new((self.init)())
     }
 }
-
-unsafe impl<T> Send for NoneObjectPool<T> {}
-unsafe impl<T> Sync for NoneObjectPool<T> {}

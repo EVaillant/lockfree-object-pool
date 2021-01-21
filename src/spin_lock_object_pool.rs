@@ -1,15 +1,14 @@
-use crate::spin_lock::SpinLock;
-use crate::spin_lock_reusable::SpinLockReusable;
+use crate::{spin_lock::SpinLock, spin_lock_reusable::SpinLockReusable};
 use std::mem::ManuallyDrop;
 
 /// ObjectPool use a spin lock over vector to secure multithread access to pull.
 ///
-/// The spin lock works like [`std::sync::Mutex`] but 
+/// The spin lock works like [`std::sync::Mutex`] but
 /// * use [`std::sync::atomic::AtomicBool`] for synchro
 /// * active waiting
-/// 
+///
 /// cf [wikipedia](https://en.wikipedia.org/wiki/Spinlock) for more information.
-/// 
+///
 /// # Example
 /// ```rust
 ///  use lockfree_object_pool::SpinLockObjectPool;
@@ -27,8 +26,8 @@ use std::mem::ManuallyDrop;
 /// ```
 pub struct SpinLockObjectPool<T> {
     objects: SpinLock<Vec<T>>,
-    reset: Box<dyn Fn(&mut T)>,
-    init: Box<dyn Fn() -> T>,
+    reset: Box<dyn Fn(&mut T) + Send + Sync>,
+    init: Box<dyn Fn() -> T + Send + Sync>,
 }
 
 impl<T> SpinLockObjectPool<T> {
@@ -52,8 +51,8 @@ impl<T> SpinLockObjectPool<T> {
     /// ```
     pub fn new<R, I>(init: I, reset: R) -> Self
     where
-        R: Fn(&mut T) + 'static,
-        I: Fn() -> T + 'static,
+        R: Fn(&mut T) + Send + Sync + 'static,
+        I: Fn() -> T + Send + Sync + 'static,
     {
         Self {
             objects: SpinLock::new(Vec::new()),
@@ -84,12 +83,8 @@ impl<T> SpinLockObjectPool<T> {
         )
     }
 
-    #[doc(hidden)]
-    pub fn attach(&self, mut data: T) {
+    pub(crate) fn attach(&self, mut data: T) {
         (self.reset)(&mut data);
         self.objects.lock().push(data);
     }
 }
-
-unsafe impl<T> Send for SpinLockObjectPool<T> {}
-unsafe impl<T> Sync for SpinLockObjectPool<T> {}

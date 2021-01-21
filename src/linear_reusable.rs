@@ -2,8 +2,8 @@ use crate::linear_object_pool::LinearObjectPool;
 use crate::page::{Page, PageId};
 use std::ops::{Deref, DerefMut};
 
-/// Wrapper over T used by [`LinearObjectPool`]. 
-/// 
+/// Wrapper over T used by [`LinearObjectPool`].
+///
 /// Access is allowed with [`std::ops::Deref`] or [`std::ops::DerefMut`]
 /// # Example
 /// ```rust
@@ -23,7 +23,7 @@ use std::ops::{Deref, DerefMut};
 pub struct LinearReusable<'a, T> {
     pool: &'a LinearObjectPool<T>,
     page_id: PageId,
-    page: *const Page<T>,
+    page: &'a Page<T>,
 }
 
 impl<'a, T> LinearReusable<'a, T> {
@@ -33,28 +33,28 @@ impl<'a, T> LinearReusable<'a, T> {
     /// * `pool` object pool owner
     /// * `page_id` page id
     /// * `page`    page that contains data
-    pub fn new(pool: &'a LinearObjectPool<T>, page_id: PageId, page: *const Page<T>) -> Self {
+    /// # Safety
+    /// * `page` has to be a valid pointer to a page in `pool`
+    /// * `pool_id` has to be a valid id for `page`
+    pub(crate) unsafe fn new(
+        pool: &'a LinearObjectPool<T>,
+        page_id: PageId,
+        page: &'a Page<T>,
+    ) -> Self {
         Self {
             pool,
             page_id,
             page,
         }
     }
-
-    #[doc(hidden)]
-    fn get_page(&self) -> &Page<T> {
-        unsafe { self.page.as_ref().unwrap() }
-    }
-
-    #[doc(hidden)]
-    fn get_mut_page(&self) -> &mut Page<T> {
-        unsafe { (self.page as *mut Page<T>).as_mut().unwrap() }
-    }
 }
 
 impl<'a, T> DerefMut for LinearReusable<'a, T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        self.get_mut_page().get_mut(&self.page_id)
+        unsafe {
+            // SAFETY: there exists only this `LinearReusable` with this page_id
+            self.page.get_mut(&self.page_id)
+        }
     }
 }
 
@@ -62,14 +62,20 @@ impl<'a, T> Deref for LinearReusable<'a, T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
-        self.get_page().get(&self.page_id)
+        unsafe {
+            // SAFETY: there exists only this `LinearReusable` with this page_id
+            self.page.get(&self.page_id)
+        }
     }
 }
 
 impl<'a, T> Drop for LinearReusable<'a, T> {
     fn drop(&mut self) {
-        let page = self.get_mut_page();
-        (self.pool.get_reset_callback())(page.get_mut(&self.page_id));
+        let page = self.page;
+        (self.pool.get_reset_callback())(unsafe {
+            // SAFETY: there exists only this `LinearReusable` with this page_id
+            page.get_mut(&self.page_id)
+        });
         page.free(&self.page_id);
     }
 }

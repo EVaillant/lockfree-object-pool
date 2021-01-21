@@ -3,8 +3,8 @@ use std::mem::ManuallyDrop;
 use std::ops::{Deref, DerefMut};
 use std::ptr;
 
-/// Wrapper over T used by [`MutexObjectPool`]. 
-/// 
+/// Wrapper over T used by [`MutexObjectPool`].
+///
 /// Access is allowed with [`std::ops::Deref`] or [`std::ops::DerefMut`]
 /// # Example
 /// ```rust
@@ -31,7 +31,7 @@ impl<'a, T> MutexReusable<'a, T> {
     ///
     /// # Arguments
     /// * `pool` object pool owner
-    /// * `data` element to wrappe
+    /// * `data` element to wrap
     pub fn new(pool: &'a MutexObjectPool<T>, data: ManuallyDrop<T>) -> Self {
         Self { pool, data }
     }
@@ -53,9 +53,10 @@ impl<'a, T> Deref for MutexReusable<'a, T> {
 
 impl<'a, T> Drop for MutexReusable<'a, T> {
     fn drop(&mut self) {
-        unsafe {
-            self.pool
-                .attach(ManuallyDrop::into_inner(ptr::read(&self.data)));
-        }
+        let data = unsafe {
+            // SAFETY: self.data is never referenced again and it isn't dropped
+            ptr::read(&self.data)
+        };
+        self.pool.attach(ManuallyDrop::into_inner(data));
     }
 }

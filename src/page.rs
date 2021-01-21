@@ -1,7 +1,10 @@
-use std::sync::atomic::{AtomicU32, Ordering};
+use std::{
+    cell::UnsafeCell,
+    sync::atomic::{AtomicU32, Ordering},
+};
 
 pub struct Page<T> {
-    data: [T; 32],
+    data: [UnsafeCell<T>; 32],
     free: AtomicU32,
 }
 
@@ -14,98 +17,83 @@ impl<T> Page<T> {
     {
         Self {
             data: [
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
-                init(),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
+                UnsafeCell::new(init()),
             ],
             free: AtomicU32::new(u32::MAX),
         }
     }
 
-    pub fn is_full(&self) -> bool {
+    #[cfg(test)]
+    pub(crate) fn is_full(&self) -> bool {
         self.free.load(Ordering::Relaxed) == 0
     }
 
-    pub fn get_mask(&self) -> u32 {
+    #[cfg(test)]
+    pub(crate) fn get_mask(&self) -> u32 {
         self.free.load(Ordering::Relaxed)
     }
 
     pub fn alloc(&self) -> Option<PageId> {
-        for i in 0..32 {
-            let mask: u32 = 1 << i;
-            let mut old = self.free.load(Ordering::Relaxed);
-            loop {
-                if old == 0 {
-                    return None;
+        self.free
+            .fetch_update(Ordering::SeqCst, Ordering::Relaxed, |free| {
+                if free == 0 {
+                    None
+                } else {
+                    Some(free & (free - 1))
                 }
-                if old & mask == 0 {
-                    break;
-                }
-                let new = old & !mask;
-                match self
-                    .free
-                    .compare_exchange_weak(old, new, Ordering::SeqCst, Ordering::Relaxed)
-                {
-                    Ok(_) => return Some(i),
-                    Err(x) => old = x,
-                }
-            }
-        }
-        None
+            })
+            .ok()
+            .map(|free| free.trailing_zeros() as u8)
     }
 
     pub fn free(&self, id: &PageId) {
         let mask: u32 = 1 << id;
-        let mut old = self.free.load(Ordering::Relaxed);
-        loop {
-            let new = old | mask;
-            match self
-                .free
-                .compare_exchange_weak(old, new, Ordering::SeqCst, Ordering::Relaxed)
-            {
-                Ok(_) => break,
-                Err(x) => old = x,
-            }
-        }
+        self.free.fetch_or(mask, Ordering::SeqCst);
     }
 
-    pub fn get(&self, id: &PageId) -> &T {
-        &self.data[*id as usize]
+    pub unsafe fn get(&self, id: &PageId) -> &T {
+        &*self.data[*id as usize].get()
     }
 
-    pub fn get_mut(&mut self, id: &PageId) -> &mut T {
-        &mut self.data[*id as usize]
+    #[allow(clippy::mut_from_ref)] // the function is marked as unsafe for a reason
+    pub unsafe fn get_mut(&self, id: &PageId) -> &mut T {
+        &mut *self.data[*id as usize].get()
     }
 }
+
+unsafe impl<T: Send> Send for Page<T> {} // normal rules apply
+unsafe impl<T: Sync> Sync for Page<T> {} // normal rules apply
 
 #[cfg(test)]
 mod tests {

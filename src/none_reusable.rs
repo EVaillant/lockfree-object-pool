@@ -1,10 +1,10 @@
 use std::ops::{Deref, DerefMut};
 
 #[allow(unused_imports)]
-use crate::non_object_pool::NoneObjectPool;
+use crate::none_object_pool::NoneObjectPool;
 
-/// Wrapper over T used by [`NoneObjectPool`]. 
-/// 
+/// Wrapper over T used by [`NoneObjectPool`].
+///
 /// Access is allowed with [`std::ops::Deref`] or [`std::ops::DerefMut`]
 /// # Example
 /// ```rust

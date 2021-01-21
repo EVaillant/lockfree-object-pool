@@ -33,15 +33,21 @@ impl<T> LinearPage<T> {
                     current = new;
                 }
                 Err(x) => {
-                    unsafe { Box::from_raw(new) };
+                    unsafe {
+                        // SAFETY: new was been allocated by Box::new
+                        Box::from_raw(new)
+                    };
                     current = x;
                 }
             }
         }
-        unsafe { current.as_ref().unwrap() }
+        unsafe {
+            // SAFETY: there are no mutable references to current
+            current.as_ref().unwrap()
+        }
     }
 
-    pub fn alloc<I>(&self, init: I) -> (*const Page<T>, PageId)
+    pub fn alloc<I>(&self, init: I) -> (&Page<T>, PageId)
     where
         I: Fn() -> T + Clone,
     {
@@ -63,7 +69,10 @@ impl<T> Drop for LinearPage<T> {
     fn drop(&mut self) {
         let current = self.next.load(Ordering::Relaxed);
         if !current.is_null() {
-            unsafe { Box::from_raw(current) };
+            unsafe {
+                // SAFETY: current was allocated with Box::new
+                Box::from_raw(current)
+            };
         }
     }
 }

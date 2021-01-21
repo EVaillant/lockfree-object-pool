@@ -20,8 +20,8 @@ use std::sync::Mutex;
 /// ```
 pub struct MutexObjectPool<T> {
     objects: Mutex<Vec<T>>,
-    reset: Box<dyn Fn(&mut T)>,
-    init: Box<dyn Fn() -> T>,
+    reset: Box<dyn Fn(&mut T) + Send + Sync>,
+    init: Box<dyn Fn() -> T + Send + Sync>,
 }
 
 impl<T> MutexObjectPool<T> {
@@ -45,8 +45,8 @@ impl<T> MutexObjectPool<T> {
     /// ```
     pub fn new<R, I>(init: I, reset: R) -> Self
     where
-        R: Fn(&mut T) + 'static,
-        I: Fn() -> T + 'static,
+        R: Fn(&mut T) + Send + Sync + 'static,
+        I: Fn() -> T + Send + Sync + 'static,
     {
         Self {
             objects: Mutex::new(Vec::new()),
@@ -83,12 +83,8 @@ impl<T> MutexObjectPool<T> {
         )
     }
 
-    #[doc(hidden)]
-    pub fn attach(&self, mut data: T) {
+    pub(crate) fn attach(&self, mut data: T) {
         (self.reset)(&mut data);
         self.objects.lock().unwrap().push(data);
     }
 }
-
-unsafe impl<T> Send for MutexObjectPool<T> {}
-unsafe impl<T> Sync for MutexObjectPool<T> {}
