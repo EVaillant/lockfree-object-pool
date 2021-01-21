@@ -1,6 +1,6 @@
 # Lock Free Object Pool
 [![License](https://img.shields.io/badge/License-Boost%201.0-lightblue.svg)](https://github.com/EVaillant/lockfree-object-pool) [![Cargo](https://img.shields.io/crates/v/lockfree-object-pool.svg)](https://crates.io/crates/lockfree-object-pool) [![Documentation](https://docs.rs/lockfree-object-pool/badge.svg)](
-https://docs.rs/lockfree-object-pool)
+https://docs.rs/lockfree-object-pool) ![CI](https://github.com/EVaillant/lockfree-object-pool/workflows/CI/badge.svg)
 
 A thread-safe object pool collection with automatic return and attach/detach semantics.
 
