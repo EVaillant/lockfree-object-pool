@@ -9,9 +9,9 @@ use std::sync::Barrier;
 use std::thread;
 
 use lockfree_object_pool::LinearObjectPool;
-use lockfree_object_pool::SpinLockObjectPool;
 use lockfree_object_pool::MutexObjectPool;
 use lockfree_object_pool::NoneObjectPool;
+use lockfree_object_pool::SpinLockObjectPool;
 
 macro_rules! bench_alloc_impl_ {
     ($group:expr, $name: literal, $expression:expr) => {

@@ -1,11 +1,12 @@
 [package]
 name = "lockfree-object-pool"
 description = "A thread-safe object pool collection with automatic return and attach/detach semantics."
-version = "0.1.0"
+version = "0.1.1"
 readme = "README.md"
 authors = ["Etienne Vaillant <vaillant.etienne@gmail.com>"]
 edition = "2018"
 license = "BSL-1.0"
+documentation = "https://docs.rs/lockfree-object-pool"
 homepage = "https://github.com/EVaillant/lockfree-object-pool"
 repository = "https://github.com/EVaillant/lockfree-object-pool"
 keywords = ["atomic", "object-pool", "non-blocking", "lock-free"]
