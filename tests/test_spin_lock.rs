@@ -9,7 +9,10 @@ fn make_pool() -> SpinLockObjectPool<u32> {
     })
 }
 
+fn make_recycle_pool() -> SpinLockObjectPool<u32> {
+    SpinLockObjectPool::<u32>::new(Default::default, |_v| {})
+}
+
 test_generic_01!(test_spin_lock_01, make_pool());
 test_generic_02!(test_spin_lock_02, make_pool());
-test_generic_03!(test_spin_lock_03, make_pool());
-test_generic_04!(test_spin_lock_04, make_pool());
+test_recycle_generic_01!(test_spin_lock_recycle_01, make_recycle_pool());

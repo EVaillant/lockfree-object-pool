@@ -61,6 +61,5 @@ impl<'a, T> Drop for MutexReusable<'a, T> {
             ManuallyDrop::take(&mut self.data)
         };
         self.pool.attach(data);
-
     }
 }

@@ -18,69 +18,6 @@ macro_rules! test_generic_02 {
     ($name:ident, $expression:expr) => {
         #[test]
         fn $name() {
-            let pool = $expression;
-
-            let mut addrs = Vec::new();
-
-            for _ in 0..10 {
-                let mut v = pool.pull();
-                assert_eq!(*v, 0);
-                *v += 1;
-                assert_eq!(*v, 1);
-                let o = &mut *v;
-                *o += 1;
-                assert_eq!(*o, 2);
-                let addr = format!("{:?}", o as *const u32);
-                if !addrs.contains(&addr) {
-                    addrs.push(addr);
-                }
-                assert_eq!(*v, 2);
-            }
-
-            assert_eq!(addrs.len(), 1);
-            for _ in 0..2 {
-                let mut v = pool.pull();
-                assert_eq!(*v, 0);
-                *v += 1;
-            }
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! test_generic_03 {
-    ($name:ident, $expression:expr) => {
-        #[test]
-        fn $name() {
-            let pool = $expression;
-
-            let mut addrs = Vec::new();
-
-            for _ in 0..10 {
-                let mut v1 = pool.pull();
-                let mut v2 = pool.pull();
-                let addr1 = format!("{:?}", &mut *v1 as *const u32);
-                let addr2 = format!("{:?}", &mut *v2 as *const u32);
-
-                if !addrs.contains(&addr1) {
-                    addrs.push(addr1);
-                }
-
-                if !addrs.contains(&addr2) {
-                    addrs.push(addr2);
-                }
-            }
-
-            assert_eq!(addrs.len(), 2);
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! test_generic_04 {
-    ($name:ident, $expression:expr) => {
-        #[test]
-        fn $name() {
             use std::sync::mpsc;
             use std::sync::Arc;
             use std::thread;
@@ -114,6 +51,23 @@ macro_rules! test_generic_04 {
             for child in children {
                 child.join().unwrap();
             }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! test_recycle_generic_01 {
+    ($name:ident, $expression:expr) => {
+        #[test]
+        fn $name() {
+            let pool = $expression;
+
+            let mut item1 = pool.pull();
+            *item1 = 5;
+            drop(item1);
+
+            let item2 = pool.pull();
+            assert_eq!(*item2, 5);
         }
     };
 }

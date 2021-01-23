@@ -63,7 +63,7 @@
 //! [`LinearObjectPool`]|7.1384|34.481
 //! [`crate 'sharded-slab'`]|9.0273|11.127
 //! [`crate 'object-pool'`]|20.038|47.768
-//! 
+//!
 //! [`crate 'sharded-slab'`]: https://crates.io/crates/sharded-slab
 //! [`crate 'object-pool'`]: https://crates.io/crates/object-pool
 //!
