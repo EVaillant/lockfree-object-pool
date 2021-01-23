@@ -1,4 +1,4 @@
-//! A thread-safe object pool collection with automatic return and attach/detach semantics.
+//! A thread-safe object pool collection with automatic return.
 //!
 //! Some implementations are lockfree :
 //! * [`LinearObjectPool`]
@@ -44,10 +44,12 @@
 //!
 //! ObjectPool | Duration in Monothreading (us) | Duration Multithreading (us)
 //! -----------| ------------------------------ |-----------------------------
-//! [`NoneObjectPool`]|1.2937|587.75
-//! [`MutexObjectPool`]|1.3143|1.3210
-//! [`SpinLockObjectPool`]|1.3170|1.2555
-//! [`LinearObjectPool`]|0.29399|0.19894
+//! [`NoneObjectPool`]|1.2162|0.63033
+//! [`MutexObjectPool`]|1.2458|1.5140
+//! [`SpinLockObjectPool`]|1.2437|1.3737
+//! [`LinearObjectPool`]|0.21764|0.22418
+//! [`crate 'sharded-slab'`]|1.5|0.82790
+//! [`crate 'object-pool'`]|0.61956|0.26323
 //!
 //! Report [monothreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/allocation/report/index.html) and [multithreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/multi%20thread%20allocation/report/index.html).
 //!
@@ -55,10 +57,15 @@
 //!
 //! ObjectPool | Duration in Monothreading (ns) | Duration Multithreading (ns)
 //! -----------| ------------------------------ |-----------------------------
-//! [`NoneObjectPool`]|114.22|25.474
-//! [`MutexObjectPool`]|26.173|99.511
-//! [`SpinLockObjectPool`]|22.490|52.378
-//! [`LinearObjectPool`]|9.9155|23.028
+//! [`NoneObjectPool`]|91.362|86.530
+//! [`MutexObjectPool`]|25.486|101.40
+//! [`SpinLockObjectPool`]|22.089|50.411
+//! [`LinearObjectPool`]|7.1384|34.481
+//! [`crate 'sharded-slab'`]|9.0273|11.127
+//! [`crate 'object-pool'`]|20.038|47.768
+//! 
+//! [`crate 'sharded-slab'`]: https://crates.io/crates/sharded-slab
+//! [`crate 'object-pool'`]: https://crates.io/crates/object-pool
 //!
 //! Report [monothreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/free/report/index.html) and [multithreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/multi%20thread%20free/report/index.html).
 mod linear_object_pool;

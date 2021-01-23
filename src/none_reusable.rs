@@ -25,12 +25,14 @@ impl<T> NoneReusable<T> {
     ///
     /// # Arguments
     /// * `data` element to wrappe
+    #[inline]
     pub fn new(data: T) -> Self {
         Self { data }
     }
 }
 
 impl<T> DerefMut for NoneReusable<T> {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.data
     }
@@ -39,6 +41,7 @@ impl<T> DerefMut for NoneReusable<T> {
 impl<T> Deref for NoneReusable<T> {
     type Target = T;
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
         &self.data
     }

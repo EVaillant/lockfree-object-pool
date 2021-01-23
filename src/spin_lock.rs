@@ -9,6 +9,7 @@ pub struct SpinLock<T> {
 }
 
 impl<T> SpinLock<T> {
+    #[inline]
     pub fn new(data: T) -> Self {
         Self {
             data: UnsafeCell::new(data),
@@ -16,19 +17,23 @@ impl<T> SpinLock<T> {
         }
     }
 
+    #[inline]
     pub fn lock(&self) -> SpinLockGuard<T> {
         self.acquire();
         SpinLockGuard { lock: self }
     }
 
+    #[inline]
     fn acquire(&self) {
         self.exchange(false, true);
     }
 
+    #[inline]
     fn release(&self) {
         self.exchange(true, false);
     }
 
+    #[inline]
     fn exchange(&self, from: bool, to: bool) {
         loop {
             match self
@@ -52,6 +57,7 @@ pub struct SpinLockGuard<'a, T> {
 }
 
 impl<'a, T> DerefMut for SpinLockGuard<'a, T> {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         unsafe {
             // SAFETY: this is the only active guard
@@ -63,6 +69,7 @@ impl<'a, T> DerefMut for SpinLockGuard<'a, T> {
 impl<'a, T> Deref for SpinLockGuard<'a, T> {
     type Target = T;
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
         unsafe {
             // SAFETY: this is the only active guard
@@ -72,6 +79,7 @@ impl<'a, T> Deref for SpinLockGuard<'a, T> {
 }
 
 impl<'a, T> Drop for SpinLockGuard<'a, T> {
+    #[inline]
     fn drop(&mut self) {
         self.lock.release();
     }

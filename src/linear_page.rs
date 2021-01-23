@@ -8,6 +8,7 @@ pub struct LinearPage<T> {
 }
 
 impl<T> LinearPage<T> {
+    #[inline]
     pub fn new<I>(init: I) -> Self
     where
         I: Fn() -> T,
@@ -18,6 +19,7 @@ impl<T> LinearPage<T> {
         }
     }
 
+    #[inline]
     pub fn get_or_create_next<I>(&self, init: I) -> &Self
     where
         I: Fn() -> T,
@@ -47,6 +49,7 @@ impl<T> LinearPage<T> {
         }
     }
 
+    #[inline]
     pub fn alloc<I>(&self, init: I) -> (&Page<T>, PageId)
     where
         I: Fn() -> T + Clone,
@@ -66,6 +69,7 @@ impl<T> LinearPage<T> {
 }
 
 impl<T> Drop for LinearPage<T> {
+    #[inline]
     fn drop(&mut self) {
         let current = self.next.load(Ordering::Relaxed);
         if !current.is_null() {

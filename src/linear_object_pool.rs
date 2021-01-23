@@ -45,6 +45,7 @@ impl<T> LinearObjectPool<T> {
     ///    }
     ///  );
     /// ```
+    #[inline]
     pub fn new<R, I>(init: I, reset: R) -> Self
     where
         R: Fn(&mut T) + 'static + Send + Sync,
@@ -72,11 +73,13 @@ impl<T> LinearObjectPool<T> {
     ///  );
     ///  let mut item = pool.pull();
     /// ```
+    #[inline]
     pub fn pull(&self) -> LinearReusable<T> {
         let (page, page_id) = self.head.alloc(&self.init);
         unsafe { LinearReusable::new(self, page_id, page) }
     }
 
+    #[inline]
     pub(crate) fn get_reset_callback(&self) -> &dyn Fn(&mut T) {
         &self.reset
     }

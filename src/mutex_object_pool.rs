@@ -43,6 +43,7 @@ impl<T> MutexObjectPool<T> {
     ///    }
     ///  );
     /// ```
+    #[inline]
     pub fn new<R, I>(init: I, reset: R) -> Self
     where
         R: Fn(&mut T) + Send + Sync + 'static,
@@ -70,6 +71,7 @@ impl<T> MutexObjectPool<T> {
     ///  );
     ///  let mut item = pool.pull();
     /// ```
+    #[inline]
     pub fn pull(&self) -> MutexReusable<T> {
         MutexReusable::new(
             self,
@@ -83,6 +85,7 @@ impl<T> MutexObjectPool<T> {
         )
     }
 
+    #[inline]
     pub(crate) fn attach(&self, mut data: T) {
         (self.reset)(&mut data);
         self.objects.lock().unwrap().push(data);

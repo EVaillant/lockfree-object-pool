@@ -11,6 +11,7 @@ pub struct Page<T> {
 pub type PageId = u8;
 
 impl<T> Page<T> {
+    #[inline]
     pub fn new<I>(init: I) -> Self
     where
         I: Fn() -> T,
@@ -64,6 +65,7 @@ impl<T> Page<T> {
         self.free.load(Ordering::Relaxed)
     }
 
+    #[inline]
     pub fn alloc(&self) -> Option<PageId> {
         self.free
             .fetch_update(Ordering::SeqCst, Ordering::Relaxed, |free| {
@@ -77,15 +79,18 @@ impl<T> Page<T> {
             .map(|free| free.trailing_zeros() as u8)
     }
 
+    #[inline]
     pub fn free(&self, id: &PageId) {
         let mask: u32 = 1 << id;
         self.free.fetch_or(mask, Ordering::SeqCst);
     }
 
+    #[inline]
     pub unsafe fn get(&self, id: &PageId) -> &T {
         &*self.data[*id as usize].get()
     }
 
+    #[inline]
     #[allow(clippy::mut_from_ref)] // the function is marked as unsafe for a reason
     pub unsafe fn get_mut(&self, id: &PageId) -> &mut T {
         &mut *self.data[*id as usize].get()

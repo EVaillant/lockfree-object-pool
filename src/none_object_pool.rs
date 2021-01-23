@@ -28,6 +28,7 @@ impl<T> NoneObjectPool<T> {
     ///
     ///  let pool = NoneObjectPool::<u32>::new(|| Default::default());
     /// ```
+    #[inline]
     pub fn new<I>(init: I) -> Self
     where
         I: Fn() -> T + Send + Sync + 'static,
@@ -47,6 +48,7 @@ impl<T> NoneObjectPool<T> {
     ///  let pool = NoneObjectPool::<u32>::new(|| Default::default());
     ///  let mut item = pool.pull();
     /// ```
+    #[inline]
     pub fn pull(&self) -> NoneReusable<T> {
         NoneReusable::new((self.init)())
     }

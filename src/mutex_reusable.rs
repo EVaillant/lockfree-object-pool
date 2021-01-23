@@ -1,7 +1,6 @@
 use crate::mutex_object_pool::MutexObjectPool;
 use std::mem::ManuallyDrop;
 use std::ops::{Deref, DerefMut};
-use std::ptr;
 
 /// Wrapper over T used by [`MutexObjectPool`].
 ///
@@ -32,12 +31,14 @@ impl<'a, T> MutexReusable<'a, T> {
     /// # Arguments
     /// * `pool` object pool owner
     /// * `data` element to wrap
+    #[inline]
     pub fn new(pool: &'a MutexObjectPool<T>, data: ManuallyDrop<T>) -> Self {
         Self { pool, data }
     }
 }
 
 impl<'a, T> DerefMut for MutexReusable<'a, T> {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.data
     }
@@ -46,17 +47,20 @@ impl<'a, T> DerefMut for MutexReusable<'a, T> {
 impl<'a, T> Deref for MutexReusable<'a, T> {
     type Target = T;
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
         &self.data
     }
 }
 
 impl<'a, T> Drop for MutexReusable<'a, T> {
+    #[inline]
     fn drop(&mut self) {
         let data = unsafe {
             // SAFETY: self.data is never referenced again and it isn't dropped
-            ptr::read(&self.data)
+            ManuallyDrop::take(&mut self.data)
         };
-        self.pool.attach(ManuallyDrop::into_inner(data));
+        self.pool.attach(data);
+
     }
 }
