@@ -76,8 +76,8 @@
 //!  [`MutexObjectPool`]|26.108|101.86
 //!  [`SpinLockObjectPool`]|22.441|50.107
 //!  [`LinearObjectPool`]|7.5379|41.707
-//!  [`crate 'sharded-slab'`]|7.0394|
-//!  [`crate 'object-pool'`]|20.517|
+//!  [`crate 'sharded-slab'`]|7.0394|10.283
+//!  [`crate 'object-pool'`]|20.517|44.798
 //!  
 //!  Report [monothreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/free/report/index.html) and [multithreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/multi%20thread%20free/report/index.html)
 mod linear_object_pool;
