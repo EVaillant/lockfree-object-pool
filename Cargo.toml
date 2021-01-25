@@ -1,7 +1,7 @@
 [package]
 name = "lockfree-object-pool"
 description = "A thread-safe object pool collection with automatic return and attach/detach semantics."
-version = "0.1.2"
+version = "0.1.3"
 readme = "README.md"
 authors = ["Etienne Vaillant <vaillant.etienne@gmail.com>"]
 edition = "2018"

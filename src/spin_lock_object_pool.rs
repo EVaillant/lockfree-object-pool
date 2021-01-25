@@ -1,5 +1,9 @@
-use crate::{spin_lock::SpinLock, spin_lock_reusable::SpinLockReusable};
+use crate::{
+    spin_lock::SpinLock, spin_lock_owned_reusable::SpinLockOwnedReusable,
+    spin_lock_reusable::SpinLockReusable,
+};
 use std::mem::ManuallyDrop;
+use std::sync::Arc;
 
 /// ObjectPool use a spin lock over vector to secure multithread access to pull.
 ///
@@ -81,6 +85,30 @@ impl<T> SpinLockObjectPool<T> {
     pub fn pull(&self) -> SpinLockReusable<T> {
         SpinLockReusable::new(
             self,
+            ManuallyDrop::new(self.objects.lock().pop().unwrap_or_else(&self.init)),
+        )
+    }
+
+    ///
+    /// Create a new element. When the element is dropped, it returns in the pull.
+    ///
+    /// # Example
+    /// ```rust
+    ///  use lockfree_object_pool::SpinLockObjectPool;
+    ///  use std::sync::Arc;
+    ///
+    ///  let pool = Arc::new(SpinLockObjectPool::<u32>::new(
+    ///    ||  Default::default(),
+    ///    |v| {
+    ///      *v = 0;
+    ///    }
+    ///  ));
+    ///  let mut item = pool.pull_owned();
+    /// ```
+    #[inline]
+    pub fn pull_owned(self: &Arc<Self>) -> SpinLockOwnedReusable<T> {
+        SpinLockOwnedReusable::new(
+            self.clone(),
             ManuallyDrop::new(self.objects.lock().pop().unwrap_or_else(&self.init)),
         )
     }

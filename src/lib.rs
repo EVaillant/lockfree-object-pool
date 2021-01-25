@@ -40,51 +40,69 @@
 //!
 //! Global [report](https://evaillant.github.io/lockfree-object-pool/benches/criterion/report/index.html).
 //!
-//! ### Allocation
+//!
+//! #### Allocation
 //!
 //! ObjectPool | Duration in Monothreading (us) | Duration Multithreading (us)
-//! -----------| ------------------------------ |-----------------------------
-//! [`NoneObjectPool`]|1.2162|0.63033
-//! [`MutexObjectPool`]|1.2458|1.5140
-//! [`SpinLockObjectPool`]|1.2437|1.3737
-//! [`LinearObjectPool`]|0.21764|0.22418
-//! [`crate 'sharded-slab'`]|1.5|0.82790
-//! [`crate 'object-pool'`]|0.61956|0.26323
-//!
-//! Report [monothreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/allocation/report/index.html) and [multithreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/multi%20thread%20allocation/report/index.html).
-//!
-//! ### Desallocation
-//!
-//! ObjectPool | Duration in Monothreading (ns) | Duration Multithreading (ns)
-//! -----------| ------------------------------ |-----------------------------
-//! [`NoneObjectPool`]|91.362|86.530
-//! [`MutexObjectPool`]|25.486|101.40
-//! [`SpinLockObjectPool`]|22.089|50.411
-//! [`LinearObjectPool`]|7.1384|34.481
-//! [`crate 'sharded-slab'`]|9.0273|11.127
-//! [`crate 'object-pool'`]|20.038|47.768
-//!
-//! [`crate 'sharded-slab'`]: https://crates.io/crates/sharded-slab
-//! [`crate 'object-pool'`]: https://crates.io/crates/object-pool
-//!
-//! Report [monothreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/free/report/index.html) and [multithreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/multi%20thread%20free/report/index.html).
+//! ------------| :----------------------------: | :--------------------------:
+//! [`NoneObjectPool`]|1.2848|0.62509
+//! [`MutexObjectPool`]|1.3107|1.5178
+//! [`SpinLockObjectPool`]|1.3106|1.3684
+//! [`LinearObjectPool`]|0.23732|0.38913
+//! [`crate 'sharded-slab'`]|1.6264|0.82607
+//! [`crate 'object-pool'`]|0.77533|0.26224
+//!  
+//!  Report [monothreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/allocation/report/index.html) and [multithreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/multi%20thread%20allocation/report/index.html)
+//!  
+//!  #### Forward Message between Thread
+//!  
+//!   ObjectPool | 1 Reader - 1 Writter (ns) | 5 Reader - 1 Writter (ns) | 1 Reader - 5 Writter (ns) | 5 Reader - 5 Writter (ns)
+//!   -----------| :-----------------------: | :-----------------------: | :-----------------------: | :-----------------------:
+//!  [`NoneObjectPool`]|529.75|290.47|926.05|722.35
+//!  [`MutexObjectPool`]|429.29|207.17|909.88|409.99
+//!  [`SpinLockObjectPool`]|34.277|182.62|1089.7|483.81
+//!  [`LinearObjectPool`]|43.876|163.18|365.56|326.92
+//!  [`crate 'sharded-slab'`]|525.82|775.79|966.87|1289.2
+//!  
+//!  Not supported by [`crate 'object-pool'`]
+//!  
+//!  Report [1-1](https://evaillant.github.io/lockfree-object-pool/benches/criterion//forward%20msg%20from%20pull%20(nb_writter_1%20nb_readder_1)/report/index.html), [5-1](https://evaillant.github.io/lockfree-object-pool/benches/criterion//forward%20msg%20from%20pull%20(nb_writter_1%20nb_readder_5)/report/index.html), [1-5](https://evaillant.github.io/lockfree-object-pool/benches/criterion//forward%20msg%20from%20pull%20(nb_writter_5%20nb_readder_1)/report/index.html) , [5-5](https://evaillant.github.io/lockfree-object-pool/benches/criterion//forward%20msg%20from%20pull%20(nb_writter_5%20nb_readder_5)/report/index.html)
+//!  
+//!  #### Desallocation
+//!  
+//!  ObjectPool | Duration in Monothreading (ns) | Duration Multithreading (ns)
+//!  -----------| :----------------------------: | :--------------------------:
+//!  [`NoneObjectPool`]|111.81|93.585
+//!  [`MutexObjectPool`]|26.108|101.86
+//!  [`SpinLockObjectPool`]|22.441|50.107
+//!  [`LinearObjectPool`]|7.5379|41.707
+//!  [`crate 'sharded-slab'`]|7.0394|
+//!  [`crate 'object-pool'`]|20.517|
+//!  
+//!  Report [monothreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/free/report/index.html) and [multithreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/multi%20thread%20free/report/index.html)
 mod linear_object_pool;
+mod linear_owned_reusable;
 mod linear_page;
 mod linear_reusable;
 mod mutex_object_pool;
+mod mutex_owned_reusable;
 mod mutex_reusable;
 mod none_object_pool;
 mod none_reusable;
 mod page;
 mod spin_lock;
 mod spin_lock_object_pool;
+mod spin_lock_owned_reusable;
 mod spin_lock_reusable;
 
 pub use linear_object_pool::LinearObjectPool;
+pub use linear_owned_reusable::LinearOwnedReusable;
 pub use linear_reusable::LinearReusable;
 pub use mutex_object_pool::MutexObjectPool;
+pub use mutex_owned_reusable::MutexOwnedReusable;
 pub use mutex_reusable::MutexReusable;
 pub use none_object_pool::NoneObjectPool;
 pub use none_reusable::NoneReusable;
 pub use spin_lock_object_pool::SpinLockObjectPool;
+pub use spin_lock_owned_reusable::SpinLockOwnedReusable;
 pub use spin_lock_reusable::SpinLockReusable;

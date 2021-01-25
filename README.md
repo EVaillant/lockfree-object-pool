@@ -51,8 +51,8 @@ impl<T> ObjectPool<T> {
   // reset closure used to reset element a dropped element
   pub fn new<R, I>(init: I, reset: R) -> Self
     where
-        R: Fn(&mut T) + 'static,
-        I: Fn() -> T + 'static + Clone,
+        R: Fn(&mut T) + 'static + Send + Sync,
+        I: Fn() -> T + 'static + Send + Sync + Clone,
     {
       ...
     }
@@ -69,6 +69,10 @@ impl<T> ObjectPool<T> {
   pub fn pull(&self) -> Reusable<T> {
     ...
   }
+
+  pub fn pull_owned(self: &Arc<Self>) -> OwnedReusable<T> {
+    ...
+  }
 }
 
 struct Reusable<T> {  
@@ -80,7 +84,24 @@ impl<'a, T> DerefMut for Reusable<'a, T> {
     }
 }
 
-impl<'a, T> Deref for MutexReusable<'a, T> {
+impl<'a, T> Deref for Reusable<'a, T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        ...
+    }
+}
+
+struct OwnedReusable<T> {  
+}
+
+impl<'a, T> DerefMut for OwnedReusable<'a, T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        ...
+    }
+}
+
+impl<'a, T> Deref for OwnedReusable<'a, T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
@@ -106,34 +127,49 @@ Global [report](https://evaillant.github.io/lockfree-object-pool/benches/criteri
 #### Allocation
 
  ObjectPool | Duration in Monothreading (us) | Duration Multithreading (us)
-------------| ------------------------------ |-----------------------------
-NoneObjectPool|1.2162|0.63033
-MutexObjectPool|1.2458|1.5140
-SpinLockObjectPool|1.2437|1.3737
-LinearObjectPool|0.21764|0.22418
-[`crate 'sharded-slab'`]|1.5|0.82790
-[`crate 'object-pool'`]|0.61956|0.26323
+------------| :----------------------------: | :--------------------------:
+NoneObjectPool|1.2848|0.62509
+MutexObjectPool|1.3107|1.5178
+SpinLockObjectPool|1.3106|1.3684
+LinearObjectPool|0.23732|0.38913
+[`crate 'sharded-slab'`]|1.6264|0.82607
+[`crate 'object-pool'`]|0.77533|0.26224
 
-Report [monothreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/allocation/report/index.html) and [multithreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/multi%20thread%20allocation/report/index.html).
+Report [monothreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/allocation/report/index.html) and [multithreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/multi%20thread%20allocation/report/index.html)
+
+#### Forward Message between Thread
+
+ ObjectPool | 1 Reader - 1 Writter (ns) | 5 Reader - 1 Writter (ns) | 1 Reader - 5 Writter (ns) | 5 Reader - 5 Writter (ns)
+ -----------| :-----------------------: | :-----------------------: | :-----------------------: | :-----------------------:
+NoneObjectPool|529.75|290.47|926.05|722.35
+MutexObjectPool|429.29|207.17|909.88|409.99
+SpinLockObjectPool|34.277|182.62|1089.7|483.81
+LinearObjectPool|43.876|163.18|365.56|326.92
+[`crate 'sharded-slab'`]|525.82|775.79|966.87|1289.2
+
+Not supported by [`crate 'object-pool'`]
+
+Report [1-1](https://evaillant.github.io/lockfree-object-pool/benches/criterion//forward%20msg%20from%20pull%20(nb_writter_1%20nb_readder_1)/report/index.html), [5-1](https://evaillant.github.io/lockfree-object-pool/benches/criterion//forward%20msg%20from%20pull%20(nb_writter_1%20nb_readder_5)/report/index.html), [1-5](https://evaillant.github.io/lockfree-object-pool/benches/criterion//forward%20msg%20from%20pull%20(nb_writter_5%20nb_readder_1)/report/index.html) , [5-5](https://evaillant.github.io/lockfree-object-pool/benches/criterion//forward%20msg%20from%20pull%20(nb_writter_5%20nb_readder_5)/report/index.html)
 
 #### Desallocation
 
 ObjectPool | Duration in Monothreading (ns) | Duration Multithreading (ns)
------------| ------------------------------ |-----------------------------
-NoneObjectPool|91.362|86.530
-MutexObjectPool|25.486|101.40
-SpinLockObjectPool|22.089|50.411
-LinearObjectPool|7.1384|34.481
-[`crate 'sharded-slab'`]|9.0273|11.127
-[`crate 'object-pool'`]|20.038|47.768
+-----------| :----------------------------: | :--------------------------:
+NoneObjectPool|111.81|93.585
+MutexObjectPool|26.108|101.86
+SpinLockObjectPool|22.441|50.107
+LinearObjectPool|7.5379|41.707
+[`crate 'sharded-slab'`]|7.0394|
+[`crate 'object-pool'`]|20.517|
 
-Report [monothreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/free/report/index.html) and [multithreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/multi%20thread%20free/report/index.html).
+Report [monothreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/free/report/index.html) and [multithreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/multi%20thread%20free/report/index.html)
 
 ### Comparison with Similar Crates
 
 * [`crate 'sharded-slab'`]: I like pull interface but i dislike 
   * Default / Reset trait because not enough flexible
   * Performance
+  * create_owned method not use a reference on ```Self ```
 
 * [`crate 'object-pool'`]: use a spinlock to sync and the performance are pretty good but i dislike :
   * need to specify fallback at each pull call :
@@ -146,11 +182,11 @@ Report [monothreading](https://evaillant.github.io/lockfree-object-pool/benches/
   let item2 = pool.pull(|| Vec::with_capacity(4096));
   ```
   * no reset mechanism, need to do manually
+  * no possiblity to forward data between thread
 
 ### TODO
 
 * why the object-pool with spinlock has so bad performance compared to spinlock mutex use by [`crate 'object-pool'`]
-* have a Poll::create_owned like in [`crate 'sharded-slab'`]
 * impl a tree object pool (cf [`toolsbox`])
 
 ### Implementation detail
@@ -166,7 +202,6 @@ cf [Boost Licence](http://www.boost.org/LICENSE_1_0.txt)
 - [`crate 'object-pool'`] - A thread-safe object pool in rust with mutex 
 - [`crate 'sharded-slab'`] - A lock-free concurrent slab
 - [`toolsbox`] - Some object pool implementation en c++
-
 
 [`crate 'sharded-slab'`]: https://crates.io/crates/sharded-slab
 [`crate 'object-pool'`]: https://crates.io/crates/object-pool

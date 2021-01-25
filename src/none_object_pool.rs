@@ -1,4 +1,5 @@
 use crate::none_reusable::NoneReusable;
+use std::sync::Arc;
 
 /// Basic allocation without pull. Used to compare default rust allocation with different kind of object pool.
 /// # Example
@@ -50,6 +51,22 @@ impl<T> NoneObjectPool<T> {
     /// ```
     #[inline]
     pub fn pull(&self) -> NoneReusable<T> {
+        NoneReusable::new((self.init)())
+    }
+
+    ///
+    /// Create a new element. When the element is dropped, it doesn't return in the pull.
+    ///
+    /// # Example
+    /// ```rust
+    ///  use std::sync::Arc;
+    ///  use lockfree_object_pool::NoneObjectPool;
+    ///
+    ///  let pool = Arc::new(NoneObjectPool::<u32>::new(|| Default::default()));
+    ///  let mut item = pool.pull_owned();
+    /// ```
+    #[inline]
+    pub fn pull_owned(self: &Arc<Self>) -> NoneReusable<T> {
         NoneReusable::new((self.init)())
     }
 }

@@ -1,5 +1,8 @@
-use crate::linear_page::LinearPage;
-use crate::linear_reusable::LinearReusable;
+use crate::{
+    linear_owned_reusable::LinearOwnedReusable, linear_page::LinearPage,
+    linear_reusable::LinearReusable,
+};
+use std::sync::Arc;
 
 /// ObjectPool use a lockfree vector to secure multithread access to pull.
 ///
@@ -77,6 +80,28 @@ impl<T> LinearObjectPool<T> {
     pub fn pull(&self) -> LinearReusable<T> {
         let (page, page_id) = self.head.alloc(&self.init);
         unsafe { LinearReusable::new(self, page_id, page) }
+    }
+
+    ///
+    /// Create a new element. When the element is dropped, it returns in the pull.
+    ///
+    /// # Example
+    /// ```rust
+    ///  use lockfree_object_pool::LinearObjectPool;
+    ///  use std::sync::Arc;
+    ///
+    ///  let pool = Arc::new(LinearObjectPool::<u32>::new(
+    ///    ||  Default::default(),
+    ///    |v| {
+    ///      *v = 0;
+    ///    }
+    ///  ));
+    ///  let mut item = pool.pull_owned();
+    /// ```
+    #[inline]
+    pub fn pull_owned(self: &Arc<Self>) -> LinearOwnedReusable<T> {
+        let (page, page_id) = self.head.alloc(&self.init);
+        unsafe { LinearOwnedReusable::new(self.clone(), page_id, page) }
     }
 
     #[inline]

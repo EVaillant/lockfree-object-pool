@@ -1,6 +1,6 @@
-use crate::mutex_reusable::MutexReusable;
+use crate::{mutex_owned_reusable::MutexOwnedReusable, mutex_reusable::MutexReusable};
 use std::mem::ManuallyDrop;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 /// ObjectPool use a [`std::sync::Mutex`] over vector to secure multithread access to pull.
 /// # Example
@@ -75,6 +75,36 @@ impl<T> MutexObjectPool<T> {
     pub fn pull(&self) -> MutexReusable<T> {
         MutexReusable::new(
             self,
+            ManuallyDrop::new(
+                self.objects
+                    .lock()
+                    .unwrap()
+                    .pop()
+                    .unwrap_or_else(&self.init),
+            ),
+        )
+    }
+
+    ///
+    /// Create a new element. When the element is dropped, it returns in the pull.
+    ///
+    /// # Example
+    /// ```rust
+    ///  use lockfree_object_pool::MutexObjectPool;
+    ///  use std::sync::Arc;
+    ///
+    ///  let pool = Arc::new(MutexObjectPool::<u32>::new(
+    ///    ||  Default::default(),
+    ///    |v| {
+    ///      *v = 0;
+    ///    }
+    ///  ));
+    ///  let mut item = pool.pull_owned();
+    /// ```
+    #[inline]
+    pub fn pull_owned(self: &Arc<Self>) -> MutexOwnedReusable<T> {
+        MutexOwnedReusable::new(
+            self.clone(),
             ManuallyDrop::new(
                 self.objects
                     .lock()
