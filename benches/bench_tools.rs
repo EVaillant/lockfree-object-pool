@@ -48,3 +48,9 @@ impl<T> Queue<T> {
         }
     }
 }
+
+impl<T> Default for Queue<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
