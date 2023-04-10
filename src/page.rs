@@ -106,7 +106,7 @@ mod tests {
     #[test]
     fn test_page_01() {
         let page = Page::<u32>::new(|| 0);
-        assert_eq!(page.is_full(), false);
+        assert!(!page.is_full());
         assert_eq!(page.get_mask(), u32::MAX);
     }
 
@@ -115,7 +115,7 @@ mod tests {
         let page = Page::<u32>::new(|| 0);
 
         let item1 = page.alloc();
-        assert_eq!(item1.is_none(), false);
+        assert!(item1.is_some());
         assert_eq!(item1.unwrap(), 0);
         assert_eq!(
             format!("{:b}", page.get_mask()),
@@ -123,7 +123,7 @@ mod tests {
         );
 
         let item2 = page.alloc();
-        assert_eq!(item2.is_none(), false);
+        assert!(item2.is_some());
         assert_eq!(item2.unwrap(), 1);
         assert_eq!(
             format!("{:b}", page.get_mask()),
@@ -131,7 +131,7 @@ mod tests {
         );
 
         let item3 = page.alloc();
-        assert_eq!(item3.is_none(), false);
+        assert!(item3.is_some());
         assert_eq!(item3.unwrap(), 2);
         assert_eq!(
             format!("{:b}", page.get_mask()),
@@ -161,14 +161,14 @@ mod tests {
     fn test_page_03() {
         let page = Page::<u32>::new(|| 0);
         for i in 0..32 {
-            assert_eq!(page.is_full(), false);
+            assert!(!page.is_full());
 
             let item = page.alloc();
-            assert_eq!(item.is_none(), false);
+            assert!(item.is_some());
             assert_eq!(item.unwrap(), i);
         }
-        assert_eq!(page.is_full(), true);
+        assert!(page.is_full());
         let item = page.alloc();
-        assert_eq!(item.is_none(), true);
+        assert!(item.is_none());
     }
 }

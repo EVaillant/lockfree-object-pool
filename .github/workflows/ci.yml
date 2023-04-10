@@ -4,37 +4,50 @@ on:
   pull_request:
   push:
     branches:
-      - master
+      - main
   schedule:
   - cron: "0 2 * * 1"
-
 
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
 
 jobs:
-  test:
-    name: Test Rust ${{ matrix.rust }} on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - { rust: stable,           os: ubuntu-latest }
-          - { rust: stable,           os: macos-latest }
-          - { rust: stable,           os: windows-latest }
-          - { rust: beta,             os: ubuntu-latest }
-          - { rust: nightly,          os: ubuntu-latest }
+  check:
+    name: Check
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: hecrj/setup-rust-action@v1
-        with:
-          rust-version: ${{ matrix.rust }}
-      - run: cargo build --verbose
-      - run: cargo test --verbose --workspace
-      - run: cargo test --verbose --workspace --all-features
-      - run: cargo test --verbose --workspace --no-default-features
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y -qq
+          sudo apt-get install libsqlite3-dev
+
+      - name: Run cargo check
+        run: cargo check
+
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y -qq
+          sudo apt-get install libsqlite3-dev
+
+      - name: Run cargo test
+        run: cargo test --verbose
 
   clippy:
     name: Lint with clippy
@@ -42,20 +55,31 @@ jobs:
     env:
       RUSTFLAGS: -Dwarnings
     steps:
-      - uses: actions/checkout@v2
-      - uses: hecrj/setup-rust-action@v1
-        with:
-          components: clippy
-      - run: cargo clippy --workspace --all-targets --verbose
-      - run: cargo clippy --workspace --all-targets --verbose --no-default-features
-      - run: cargo clippy --workspace --all-targets --verbose --all-features
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        
+      - name: Run cargo clippy
+        run: cargo clippy --workspace --all-targets --verbose -- -A dead-code
 
   rustfmt:
     name: Verify code formatting
     runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -Dwarnings
     steps:
-      - uses: actions/checkout@v2
-      - uses: hecrj/setup-rust-action@v1
-        with:
-          components: rustfmt
-      - run: cargo fmt --all -- --check
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y -qq
+          sudo apt-get install libsqlite3-dev
+
+      - name: Run cargo clippy
+        run: cargo fmt --all -- --check

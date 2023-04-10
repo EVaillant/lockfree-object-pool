@@ -27,7 +27,7 @@ pub struct MutexOwnedReusable<T> {
     data: ManuallyDrop<T>,
 }
 
-impl<'a, T> MutexOwnedReusable<T> {
+impl<T> MutexOwnedReusable<T> {
     /// Create new element
     ///
     /// # Arguments

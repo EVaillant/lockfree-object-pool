@@ -39,7 +39,7 @@ impl<T> SpinLockOwnedReusable<T> {
     }
 }
 
-impl<'a, T> DerefMut for SpinLockOwnedReusable<T> {
+impl<T> DerefMut for SpinLockOwnedReusable<T> {
     #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.data
