@@ -17,7 +17,7 @@ categories = ["concurrency", "memory-management", "data-structures"]
 [dev-dependencies]
 sharded-slab = "0.1"
 object-pool = "0.5"
-criterion = "0.4"
+criterion = "0.5.1"
 criterion-plot = "0.5"
 
 [[bench]]

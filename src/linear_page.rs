@@ -37,7 +37,7 @@ impl<T> LinearPage<T> {
                 Err(x) => {
                     unsafe {
                         // SAFETY: new was been allocated by Box::new
-                        Box::from_raw(new)
+                        drop(Box::from_raw(new))
                     };
                     current = x;
                 }
@@ -75,7 +75,7 @@ impl<T> Drop for LinearPage<T> {
         if !current.is_null() {
             unsafe {
                 // SAFETY: current was allocated with Box::new
-                Box::from_raw(current)
+                drop(Box::from_raw(current))
             };
         }
     }
