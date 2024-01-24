@@ -29,7 +29,7 @@ impl<T> LinearPage<T> {
             let new = Box::into_raw(Box::new(LinearPage::<T>::new(init)));
             match self
                 .next
-                .compare_exchange_weak(current, new, Ordering::SeqCst, Ordering::Relaxed)
+                .compare_exchange(current, new, Ordering::SeqCst, Ordering::Relaxed)
             {
                 Ok(_) => {
                     current = new;
