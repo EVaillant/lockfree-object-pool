@@ -124,6 +124,108 @@ fn bench_free(c: &mut Criterion) {
     group.finish();
 }
 
+fn bench_reuse(c: &mut Criterion) {
+    const VEC_SIZE: usize = 16384;
+    const BATCH_SIZE: usize = 8192;
+
+    let mut group = c.benchmark_group("reuse");
+    group.bench_function("none object poll", |b| {
+        b.iter_batched(
+            || {
+                (
+                    lockfree_object_pool::NoneObjectPool::new(|| {
+                        Vec::<u8>::with_capacity(16 * 1024)
+                    }),
+                    Vec::with_capacity(VEC_SIZE),
+                )
+            },
+            |(pool, mut vec)| {
+                for index in 0..BATCH_SIZE {
+                    vec.insert(index, criterion::black_box(pool.pull()));
+                }
+            },
+            criterion::BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("mutex object poll", |b| {
+        b.iter_batched(
+            || {
+                let pool = lockfree_object_pool::MutexObjectPool::<Vec<u8>>::new(
+                    || Vec::with_capacity(16 * 1024),
+                    |_v| {},
+                );
+                let v: Vec<_> = (0..VEC_SIZE).map(|_| pool.pull()).collect();
+                drop(v);
+                (pool, Vec::with_capacity(VEC_SIZE))
+            },
+            |(pool, mut vec)| {
+                for index in 0..BATCH_SIZE {
+                    vec.insert(index, criterion::black_box(pool.pull()));
+                }
+            },
+            criterion::BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("spin_lock object poll", |b| {
+        b.iter_batched(
+            || {
+                let pool = lockfree_object_pool::SpinLockObjectPool::<Vec<u8>>::new(
+                    || Vec::with_capacity(16 * 1024),
+                    |_v| {},
+                );
+                let v: Vec<_> = (0..VEC_SIZE).map(|_| pool.pull()).collect();
+                drop(v);
+                (pool, Vec::with_capacity(VEC_SIZE))
+            },
+            |(pool, mut vec)| {
+                for index in 0..BATCH_SIZE {
+                    vec.insert(index, criterion::black_box(pool.pull()));
+                }
+            },
+            criterion::BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("linear object poll", |b| {
+        b.iter_batched(
+            || {
+                let pool = lockfree_object_pool::LinearObjectPool::new(
+                    || Vec::<u8>::with_capacity(16 * 1024),
+                    |_v| {},
+                );
+                let v: Vec<_> = (0..VEC_SIZE).map(|_| pool.pull()).collect();
+                drop(v);
+                (pool, Vec::with_capacity(VEC_SIZE))
+            },
+            |(pool, mut vec)| {
+                for index in 0..BATCH_SIZE {
+                    vec.insert(index, criterion::black_box(pool.pull()));
+                }
+            },
+            criterion::BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("crate 'object-pool'", |b| {
+        b.iter_batched(
+            || {
+                let pool = object_pool::Pool::new(VEC_SIZE, || Vec::<u8>::with_capacity(16 * 1024));
+                let v: Vec<_> = (0..VEC_SIZE).map(|_| pool.try_pull().unwrap()).collect();
+                drop(v);
+                (pool, Vec::with_capacity(VEC_SIZE))
+            },
+            |(pool, mut vec)| {
+                for index in 0..BATCH_SIZE {
+                    vec.insert(index, criterion::black_box(pool.try_pull().unwrap()));
+                }
+            },
+            criterion::BatchSize::SmallInput,
+        );
+    });
+}
+
 fn bench_alloc_mt(c: &mut Criterion) {
     let mut group = c.benchmark_group("multi thread allocation");
     bench_alloc_mt_impl_!(
@@ -305,5 +407,5 @@ criterion_group!(
     bench_forward_multi_thread11
 );
 criterion_group!(multi_thread, bench_alloc_mt, bench_free_mt);
-criterion_group!(mono_thread, bench_alloc, bench_free);
+criterion_group!(mono_thread, bench_alloc, bench_free, bench_reuse);
 criterion_main!(mono_thread, multi_thread, forward_multi_thread);
