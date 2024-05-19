@@ -11,6 +11,7 @@ homepage = "https://github.com/EVaillant/lockfree-object-pool"
 repository = "https://github.com/EVaillant/lockfree-object-pool"
 keywords = ["atomic", "object-pool", "non-blocking", "lock-free"]
 categories = ["concurrency", "memory-management", "data-structures"]
+exclude = ["benches/criterion"]
 
 [dependencies]
 
