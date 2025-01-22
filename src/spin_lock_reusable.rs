@@ -37,14 +37,14 @@ impl<'a, T> SpinLockReusable<'a, T> {
     }
 }
 
-impl<'a, T> DerefMut for SpinLockReusable<'a, T> {
+impl<T> DerefMut for SpinLockReusable<'_, T> {
     #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.data
     }
 }
 
-impl<'a, T> Deref for SpinLockReusable<'a, T> {
+impl<T> Deref for SpinLockReusable<'_, T> {
     type Target = T;
 
     #[inline]
@@ -53,7 +53,7 @@ impl<'a, T> Deref for SpinLockReusable<'a, T> {
     }
 }
 
-impl<'a, T> Drop for SpinLockReusable<'a, T> {
+impl<T> Drop for SpinLockReusable<'_, T> {
     #[inline]
     fn drop(&mut self) {
         let data = unsafe {

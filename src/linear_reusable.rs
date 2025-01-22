@@ -50,7 +50,7 @@ impl<'a, T> LinearReusable<'a, T> {
     }
 }
 
-impl<'a, T> DerefMut for LinearReusable<'a, T> {
+impl<T> DerefMut for LinearReusable<'_, T> {
     #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         unsafe {
@@ -60,7 +60,7 @@ impl<'a, T> DerefMut for LinearReusable<'a, T> {
     }
 }
 
-impl<'a, T> Deref for LinearReusable<'a, T> {
+impl<T> Deref for LinearReusable<'_, T> {
     type Target = T;
 
     #[inline]
@@ -72,7 +72,7 @@ impl<'a, T> Deref for LinearReusable<'a, T> {
     }
 }
 
-impl<'a, T> Drop for LinearReusable<'a, T> {
+impl<T> Drop for LinearReusable<'_, T> {
     #[inline]
     fn drop(&mut self) {
         let page = self.page;

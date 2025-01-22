@@ -37,14 +37,14 @@ impl<'a, T> MutexReusable<'a, T> {
     }
 }
 
-impl<'a, T> DerefMut for MutexReusable<'a, T> {
+impl<T> DerefMut for MutexReusable<'_, T> {
     #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.data
     }
 }
 
-impl<'a, T> Deref for MutexReusable<'a, T> {
+impl<T> Deref for MutexReusable<'_, T> {
     type Target = T;
 
     #[inline]
@@ -53,7 +53,7 @@ impl<'a, T> Deref for MutexReusable<'a, T> {
     }
 }
 
-impl<'a, T> Drop for MutexReusable<'a, T> {
+impl<T> Drop for MutexReusable<'_, T> {
     #[inline]
     fn drop(&mut self) {
         let data = unsafe {

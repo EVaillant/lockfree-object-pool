@@ -17,7 +17,7 @@ exclude = ["benches/criterion"]
 
 [dev-dependencies]
 sharded-slab = "0.1"
-object-pool = "0.5"
+object-pool = "0.6"
 criterion = "0.5.1"
 criterion-plot = "0.5"
 

@@ -56,7 +56,7 @@ pub struct SpinLockGuard<'a, T> {
     lock: &'a SpinLock<T>,
 }
 
-impl<'a, T> DerefMut for SpinLockGuard<'a, T> {
+impl<T> DerefMut for SpinLockGuard<'_, T> {
     #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         unsafe {
@@ -66,7 +66,7 @@ impl<'a, T> DerefMut for SpinLockGuard<'a, T> {
     }
 }
 
-impl<'a, T> Deref for SpinLockGuard<'a, T> {
+impl<T> Deref for SpinLockGuard<'_, T> {
     type Target = T;
 
     #[inline]
@@ -78,7 +78,7 @@ impl<'a, T> Deref for SpinLockGuard<'a, T> {
     }
 }
 
-impl<'a, T> Drop for SpinLockGuard<'a, T> {
+impl<T> Drop for SpinLockGuard<'_, T> {
     #[inline]
     fn drop(&mut self) {
         self.lock.release();
