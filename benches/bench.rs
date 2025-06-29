@@ -141,7 +141,7 @@ fn bench_reuse(c: &mut Criterion) {
             },
             |(pool, mut vec)| {
                 for index in 0..BATCH_SIZE {
-                    vec.insert(index, criterion::black_box(pool.pull()));
+                    vec.insert(index, std::hint::black_box(pool.pull()));
                 }
             },
             criterion::BatchSize::SmallInput,
@@ -161,7 +161,7 @@ fn bench_reuse(c: &mut Criterion) {
             },
             |(pool, mut vec)| {
                 for index in 0..BATCH_SIZE {
-                    vec.insert(index, criterion::black_box(pool.pull()));
+                    vec.insert(index, std::hint::black_box(pool.pull()));
                 }
             },
             criterion::BatchSize::SmallInput,
@@ -181,7 +181,7 @@ fn bench_reuse(c: &mut Criterion) {
             },
             |(pool, mut vec)| {
                 for index in 0..BATCH_SIZE {
-                    vec.insert(index, criterion::black_box(pool.pull()));
+                    vec.insert(index, std::hint::black_box(pool.pull()));
                 }
             },
             criterion::BatchSize::SmallInput,
@@ -201,7 +201,7 @@ fn bench_reuse(c: &mut Criterion) {
             },
             |(pool, mut vec)| {
                 for index in 0..BATCH_SIZE {
-                    vec.insert(index, criterion::black_box(pool.pull()));
+                    vec.insert(index, std::hint::black_box(pool.pull()));
                 }
             },
             criterion::BatchSize::SmallInput,
@@ -218,7 +218,7 @@ fn bench_reuse(c: &mut Criterion) {
             },
             |(pool, mut vec)| {
                 for index in 0..BATCH_SIZE {
-                    vec.insert(index, criterion::black_box(pool.try_pull().unwrap()));
+                    vec.insert(index, std::hint::black_box(pool.try_pull().unwrap()));
                 }
             },
             criterion::BatchSize::SmallInput,
@@ -328,8 +328,7 @@ fn bench_free_mt(c: &mut Criterion) {
 
 fn bench_forward_multi_thread(c: &mut Criterion, nb_writter: usize, nb_readder: usize) {
     let mut group = c.benchmark_group(format!(
-        "forward msg from pull (nb_writter:{} nb_readder:{})",
-        nb_writter, nb_readder
+        "forward msg from pull (nb_writter:{nb_writter} nb_readder:{nb_readder})"
     ));
     bench_forward_impl_!(
         group,
