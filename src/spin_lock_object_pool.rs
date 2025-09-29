@@ -82,7 +82,7 @@ impl<T> SpinLockObjectPool<T> {
     ///  let mut item = pool.pull();
     /// ```
     #[inline]
-    pub fn pull(&self) -> SpinLockReusable<T> {
+    pub fn pull(&self) -> SpinLockReusable<'_, T> {
         SpinLockReusable::new(
             self,
             ManuallyDrop::new(self.objects.lock().pop().unwrap_or_else(&self.init)),

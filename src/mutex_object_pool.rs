@@ -72,7 +72,7 @@ impl<T> MutexObjectPool<T> {
     ///  let mut item = pool.pull();
     /// ```
     #[inline]
-    pub fn pull(&self) -> MutexReusable<T> {
+    pub fn pull(&self) -> MutexReusable<'_, T> {
         MutexReusable::new(
             self,
             ManuallyDrop::new(

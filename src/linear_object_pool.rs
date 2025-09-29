@@ -77,7 +77,7 @@ impl<T> LinearObjectPool<T> {
     ///  let mut item = pool.pull();
     /// ```
     #[inline]
-    pub fn pull(&self) -> LinearReusable<T> {
+    pub fn pull(&self) -> LinearReusable<'_, T> {
         let (page, page_id) = self.head.alloc(&self.init);
         unsafe { LinearReusable::new(self, page_id, page) }
     }

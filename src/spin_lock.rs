@@ -18,7 +18,7 @@ impl<T> SpinLock<T> {
     }
 
     #[inline]
-    pub fn lock(&self) -> SpinLockGuard<T> {
+    pub fn lock(&self) -> SpinLockGuard<'_, T> {
         self.acquire();
         SpinLockGuard { lock: self }
     }
