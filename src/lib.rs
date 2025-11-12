@@ -94,6 +94,7 @@ mod spin_lock;
 mod spin_lock_object_pool;
 mod spin_lock_owned_reusable;
 mod spin_lock_reusable;
+pub mod async_variants;
 
 pub use linear_object_pool::LinearObjectPool;
 pub use linear_owned_reusable::LinearOwnedReusable;
@@ -106,3 +107,4 @@ pub use none_reusable::NoneReusable;
 pub use spin_lock_object_pool::SpinLockObjectPool;
 pub use spin_lock_owned_reusable::SpinLockOwnedReusable;
 pub use spin_lock_reusable::SpinLockReusable;
+

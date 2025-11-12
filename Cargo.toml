@@ -14,12 +14,14 @@ categories = ["concurrency", "memory-management", "data-structures"]
 exclude = ["benches/criterion"]
 
 [dependencies]
+futures = "0.3"
 
 [dev-dependencies]
 sharded-slab = "0.1"
 object-pool = "0.6"
 criterion = "0.7"
 criterion-plot = "0.6"
+tokio = { version = "1.48.0", features = ["macros", "rt"] }
 
 [[bench]]
 name = "bench"
