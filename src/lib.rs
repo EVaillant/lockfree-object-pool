@@ -80,6 +80,8 @@
 //!  [`crate 'object-pool'`]|20.517|44.798
 //!  
 //!  Report [monothreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/free/report/index.html) and [multithreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/multi%20thread%20free/report/index.html)
+#[cfg(feature = "async_variants")]
+pub mod async_variants;
 mod linear_object_pool;
 mod linear_owned_reusable;
 mod linear_page;
@@ -94,7 +96,6 @@ mod spin_lock;
 mod spin_lock_object_pool;
 mod spin_lock_owned_reusable;
 mod spin_lock_reusable;
-pub mod async_variants;
 
 pub use linear_object_pool::LinearObjectPool;
 pub use linear_owned_reusable::LinearOwnedReusable;
@@ -107,4 +108,3 @@ pub use none_reusable::NoneReusable;
 pub use spin_lock_object_pool::SpinLockObjectPool;
 pub use spin_lock_owned_reusable::SpinLockOwnedReusable;
 pub use spin_lock_reusable::SpinLockReusable;
-

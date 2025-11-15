@@ -1,5 +1,5 @@
-use crate::page::PageId;
 use crate::async_variants::page::Page;
+use crate::page::PageId;
 use std::ptr;
 use std::sync::atomic::{AtomicPtr, Ordering};
 

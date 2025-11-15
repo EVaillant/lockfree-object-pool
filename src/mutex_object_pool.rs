@@ -26,7 +26,7 @@ pub struct MutexObjectPool<T> {
 
 impl<T> MutexObjectPool<T> {
     ///
-    /// Create an new [`MutexObjectPool`]
+    /// Create a new [`MutexObjectPool`]
     ///
     /// # Arguments
     /// * `init`  closure to create new item

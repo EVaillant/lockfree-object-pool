@@ -10,14 +10,15 @@ use std::sync::Arc;
 /// # Example
 /// ```rust
 ///  use lockfree_object_pool::async_variants::LinearObjectPool;
+///  use futures::executor::block_on;
 ///
-///  let pool = LinearObjectPool::new(
+///  let pool = block_on(LinearObjectPool::new(
 ///    async ||  Default::default(),
 ///    async |v| {
 ///      *v = 0;
 ///    }
-///  );
-///  let mut item = pool.pull();
+///  ));
+///  let mut item: &mut i32 = &mut block_on(pool.pull());
 ///
 ///  *item = 5;
 ///  let work = *item * 5;
@@ -47,9 +48,9 @@ impl<
     ///
     /// # Example
     /// ```rust
-    ///  use lockfree_object_pool::LinearObjectPoolAsync;
+    ///  use lockfree_object_pool::async_variants::LinearObjectPool;
     ///
-    ///  let pool = LinearObjectPoolAsync::new(
+    ///  let pool = LinearObjectPool::new(
     ///    async ||  Default::default(),
     ///    async |v| {
     ///      *v = 0;
@@ -70,14 +71,15 @@ impl<
     ///
     /// # Example
     /// ```rust
-    ///  use lockfree_object_pool::LinearObjectPoolAsync;
+    ///  use lockfree_object_pool::async_variants::LinearObjectPool;
+    ///  use futures::executor::block_on;
     ///
-    ///  let pool = LinearObjectPoolAsync::new(
+    ///  let pool = block_on(LinearObjectPool::new(
     ///    async ||  Default::default(),
     ///    async |v| {
     ///      *v = 0;
     ///    }
-    ///  );
+    ///  ));
     ///  let mut item = pool.pull();
     /// ```
     #[inline]
@@ -91,15 +93,16 @@ impl<
     ///
     /// # Example
     /// ```rust
-    ///  use lockfree_object_pool::LinearObjectPoolAsync;
+    ///  use lockfree_object_pool::async_variants::LinearObjectPool;
     ///  use std::sync::Arc;
+    ///  use futures::executor::block_on;
     ///
-    ///  let pool = Arc::new(LinearObjectPoolAsync::new(
+    ///  let pool = Arc::new(block_on(LinearObjectPool::new(
     ///    async ||  Default::default(),
     ///    async |v| {
     ///      *v = 0;
     ///    }
-    ///  ));
+    ///  )));
     ///  let mut item = pool.pull_owned();
     /// ```
     #[inline]

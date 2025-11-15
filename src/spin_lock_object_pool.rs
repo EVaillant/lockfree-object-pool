@@ -36,7 +36,7 @@ pub struct SpinLockObjectPool<T> {
 
 impl<T> SpinLockObjectPool<T> {
     ///
-    /// Create an new [`SpinLockObjectPool`]
+    /// Create a new [`SpinLockObjectPool`]
     ///
     /// # Arguments
     /// * `init`  closure to create new item

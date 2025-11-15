@@ -31,7 +31,7 @@ pub struct LinearObjectPool<T> {
 
 impl<T> LinearObjectPool<T> {
     ///
-    /// Create an new [`LinearObjectPool`]
+    /// Create a new [`LinearObjectPool`]
     ///
     /// # Arguments
     /// * `init`  closure to create new item

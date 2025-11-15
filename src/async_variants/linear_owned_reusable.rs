@@ -1,6 +1,6 @@
 use crate::async_variants::linear_object_pool::LinearObjectPool;
-use crate::page::PageId;
 use crate::async_variants::page::Page;
+use crate::page::PageId;
 use futures::executor::block_on;
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;

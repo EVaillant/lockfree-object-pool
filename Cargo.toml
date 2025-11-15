@@ -13,8 +13,11 @@ keywords = ["atomic", "object-pool", "non-blocking", "lock-free"]
 categories = ["concurrency", "memory-management", "data-structures"]
 exclude = ["benches/criterion"]
 
+[features]
+async_variants = ["dep:futures"]
+
 [dependencies]
-futures = "0.3"
+futures = {  version = "0.3", optional = true }
 
 [dev-dependencies]
 sharded-slab = "0.1"
