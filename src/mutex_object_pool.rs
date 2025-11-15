@@ -2,7 +2,7 @@ use crate::{mutex_owned_reusable::MutexOwnedReusable, mutex_reusable::MutexReusa
 use std::mem::ManuallyDrop;
 use std::sync::{Arc, Mutex};
 
-/// ObjectPool use a [`std::sync::Mutex`] over vector to secure multithread access to pull.
+/// ObjectPool use a [`std::sync::Mutex`] over vector to secure multithread access to the pool.
 /// # Example
 /// ```rust
 ///  use lockfree_object_pool::MutexObjectPool;
@@ -26,7 +26,7 @@ pub struct MutexObjectPool<T> {
 
 impl<T> MutexObjectPool<T> {
     ///
-    /// Create an new [`MutexObjectPool`]
+    /// Create a new [`MutexObjectPool`]
     ///
     /// # Arguments
     /// * `init`  closure to create new item

@@ -4,7 +4,7 @@ use crate::{
 };
 use std::sync::Arc;
 
-/// ObjectPool use a lockfree vector to secure multithread access to pull.
+/// ObjectPool use a lockfree vector to secure multithread access to the pool.
 ///
 /// The lockfree vector is implemented as linked list.
 ///
@@ -31,7 +31,7 @@ pub struct LinearObjectPool<T> {
 
 impl<T> LinearObjectPool<T> {
     ///
-    /// Create an new [`LinearObjectPool`]
+    /// Create a new [`LinearObjectPool`]
     ///
     /// # Arguments
     /// * `init`  closure to create new item

@@ -5,7 +5,7 @@ use crate::{
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
 
-/// ObjectPool use a spin lock over vector to secure multithread access to pull.
+/// ObjectPool use a spin lock over vector to secure multithread access to the pool.
 ///
 /// The spin lock works like [`std::sync::Mutex`] but
 /// * use [`std::sync::atomic::AtomicBool`] for synchro
@@ -36,7 +36,7 @@ pub struct SpinLockObjectPool<T> {
 
 impl<T> SpinLockObjectPool<T> {
     ///
-    /// Create an new [`SpinLockObjectPool`]
+    /// Create a new [`SpinLockObjectPool`]
     ///
     /// # Arguments
     /// * `init`  closure to create new item

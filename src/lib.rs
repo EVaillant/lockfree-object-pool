@@ -80,6 +80,8 @@
 //!  [`crate 'object-pool'`]|20.517|44.798
 //!  
 //!  Report [monothreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/free/report/index.html) and [multithreading](https://evaillant.github.io/lockfree-object-pool/benches/criterion/multi%20thread%20free/report/index.html)
+#[cfg(feature = "async_variants")]
+pub mod async_variants;
 mod linear_object_pool;
 mod linear_owned_reusable;
 mod linear_page;

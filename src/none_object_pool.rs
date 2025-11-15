@@ -18,7 +18,7 @@ pub struct NoneObjectPool<T> {
 
 impl<T> NoneObjectPool<T> {
     ///
-    /// Create an new [`NoneObjectPool`]
+    /// Create a new [`NoneObjectPool`]
     ///
     /// # Arguments
     /// * `init` closure to create new item
